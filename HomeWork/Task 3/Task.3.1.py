@@ -1,6 +1,6 @@
 try:
     with open('cereals.csv') as file_handle:
-        # Initialize variables for hot cereals
+        # inicializē mainīgos karstajiem kelogsiem
         hot_lowest_rating = float('inf')
         hot_highest_rating = float('-inf')
         hot_lowest_name = ""
@@ -8,7 +8,7 @@ try:
         hot_total_rating = 0
         hot_count = 0
 
-        # Initialize variables for cold cereals
+        # Inicializē mainīgos aukstajiem kelogsiem
         cold_lowest_rating = float('inf')
         cold_highest_rating = float('-inf')
         cold_lowest_name = ""
@@ -16,19 +16,19 @@ try:
         cold_total_rating = 0
         cold_count = 0
 
-        # Loop through each line in the file
+        # loop cauri katrai līnijai failā
         for line in file_handle:
             parts = line.strip().split(',')
             if len(parts) < 3:
-                continue  # Skip lines that don't have enough columns
+                continue  # skipo rindas, kurām nav pietiekami daudz kolonnu
 
             name = parts[0]
-            ctype = parts[2]  # Corrected to consider the "Type" column
+            ctype = parts[2]  # Labots lai ņem vērā kolonnu “type”
             try:
-                rating = float(parts[-1])  # Convert rating to float
+                rating = float(parts[-1])  # konvertē rating uz float
             except ValueError:
                 print("Invalid rating value in line:", line.strip())
-                continue  # Skip lines with invalid rating
+                continue  # skipo līnijas ar nepareizu reitingu
 
             if ctype == 'H':
                 hot_total_rating += rating
@@ -49,17 +49,17 @@ try:
                     cold_highest_rating = rating
                     cold_highest_name = name
 
-        # Calculate average rating for hot and cold cereals
+        # izkalkulē vidējo reitingu karstiem un aukstiem kelogsiem
         hot_average_rating = hot_total_rating / hot_count if hot_count > 0 else 0
         cold_average_rating = cold_total_rating / cold_count if cold_count > 0 else 0
 
-        # Print results for hot cereals
+        # izprintē rezultātus karstajiem kelogsiem
         print("Cereal type: Hot")
         print("The lowest cereals rating value:", hot_lowest_rating, "Cereals name:", hot_lowest_name)
         print("The average cereals rating value: {:.2f}".format(hot_average_rating))
         print("The highest cereals rating value:", hot_highest_rating, "Cereals name:", hot_highest_name)
 
-        # Print results for cold cereals
+        # izprintē rezultātus aukstajiem kelogsiem
         print("\nCereal type: Cold")
         print("The lowest cereals rating value:", cold_lowest_rating, "Cereals name:", cold_lowest_name)
         print("The average cereals rating value: {:.2f}".format(cold_average_rating))

@@ -1,9 +1,8 @@
 import re
 
-# Open the file containing cereal data
 try:
     with open('cereals.csv') as file_handle:
-        # Initialize variables for hot cereals
+        # inicializē mainīgos karstajiem kelogsiem
         hot_lowest_rating = float('inf')
         hot_highest_rating = float('-inf')
         hot_lowest_name = ""
@@ -11,7 +10,7 @@ try:
         hot_total_rating = 0
         hot_count = 0
 
-        # Initialize variables for cold cereals
+        # Inicializē mainīgos aukstajiem kelogsiem
         cold_lowest_rating = float('inf')
         cold_highest_rating = float('-inf')
         cold_lowest_name = ""
@@ -19,18 +18,18 @@ try:
         cold_total_rating = 0
         cold_count = 0
 
-        # Define regex pattern to match the CSV format
+        # Define regex pattern to match the CSV format Nodefinē regex modeli, lait as atbilstu CSV formātam
         pattern = re.compile(r'^(.*),(.*),(.*),([\d.]+)$')
 
-        # Loop through each line in the file
+        # Loop cauri katrai līnijai failā
         for line in file_handle:
             match = pattern.match(line.strip())
             if not match:
-                continue  # Skip lines that don't match the pattern
+                continue  # skipo līnijas, kuras neatbilst modelim
 
-            name, ctype, _, rating = match.groups()  # Extract relevant groups
+            name, ctype, _, rating = match.groups()  # izvelk attiecīgās grupas
 
-            rating = float(rating)  # Convert rating to float
+            rating = float(rating)  # konvertē rating uz float
 
             if ctype == 'H':
                 hot_total_rating += rating
@@ -51,17 +50,17 @@ try:
                     cold_highest_rating = rating
                     cold_highest_name = name
 
-        # Calculate average rating for hot and cold cereals
+        # izkalkulē vidējo reitingu karstiem un aukstiem kelogsiem
         hot_average_rating = hot_total_rating / hot_count if hot_count > 0 else 0
         cold_average_rating = cold_total_rating / cold_count if cold_count > 0 else 0
 
-        # Print results for hot cereals
+        # Izprintē rezultātus karstiem kelogsiem
         print("Cereal type: Hot")
         print("The lowest cereals rating value:", hot_lowest_rating, "Cereals name:", hot_lowest_name)
         print("The average cereals rating value: {:.2f}".format(hot_average_rating))
         print("The highest cereals rating value:", hot_highest_rating, "Cereals name:", hot_highest_name)
 
-        # Print results for cold cereals
+        # Izprintē rezultātus aukstiem kelogsiem
         print("\nCereal type: Cold")
         print("The lowest cereals rating value:", cold_lowest_rating, "Cereals name:", cold_lowest_name)
         print("The average cereals rating value: {:.2f}".format(cold_average_rating))
