@@ -1,0 +1,44 @@
+import requests
+
+def reverse_geocode(latitude, longitude):
+    # Construct the API URL for reverse geocoding using latitude and longitude
+    url = f"https://nominatim.openstreetmap.org/reverse?lat={latitude}&lon={longitude}&format=json"
+
+    # Send a GET request to the Nominatim API to perform reverse geocoding
+    response = requests.get(url)
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the JSON response
+        data = response.json()
+
+        # Extract relevant information from the response
+        place_name = data.get('display_name', 'Not available')  # Extracts the name of the place
+        place_type = data.get('type', 'Not available')  # Extracts the type of the place
+        address = data.get('address', {})  # Extracts the address information
+        house_number = address.get('house_number', 'Not available')  # Extracts the house number
+        street_name = address.get('road', 'Not available')  # Extracts the street name
+        city = address.get('city', 'Not available')  # Extracts the city
+        postcode = address.get('postcode', 'Not available')  # Extracts the postcode
+        country = address.get('country', 'Not available')  # Extracts the country
+        country_code = address.get('country_code', 'Not available')  # Extracts the country code
+
+        # Display the extracted information
+        print("Place Name:", place_name)
+        print("Place Type:", place_type)
+        print("House Number:", house_number)
+        print("Street Name:", street_name)
+        print("City:", city)
+        print("Postcode:", postcode)
+        print("Country:", country)
+        print("Country Code:", country_code)
+    else:
+        # Inform the user of a failure in retrieving geocoding data
+        print("Failed to retrieve geocoding data.")
+
+# Prompt the user to enter latitude and longitude coordinates
+latitude = input("Enter latitude: ")
+longitude = input("Enter longitude: ")
+
+# Call the reverse_geocode function with the provided latitude and longitude
+reverse_geocode(latitude, longitude)
