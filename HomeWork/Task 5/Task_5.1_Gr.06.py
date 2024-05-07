@@ -12,7 +12,7 @@ try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host, 80))
 
-    # Construct a GET request to retrieve the URL
+    # GET request to retrieve the URL
     request = f"GET {url} HTTP/1.1\r\nHost: {host}\r\n\r\n"
     sock.sendall(request.encode())
 
@@ -23,8 +23,7 @@ try:
         if not data:
             break
         characters += len(data)
-        # Stop displaying response if characters exceed 1700
-        if characters > 1700:
+        if characters > 1700: #If bigger than 1700
             print(f"\nStopping display at 1700 characters\n")
             break
         print(data.decode(), end="")
@@ -34,5 +33,5 @@ except Exception as e:
     print(f"Error: {e}")
 
 finally:
-    # Close the socket connection regardless of the outcome
+    # Close
     sock.close()
