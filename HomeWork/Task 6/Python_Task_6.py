@@ -1,15 +1,15 @@
 import sqlite3
 import re
 
-# Function to extract domain from an email address
+# Extract domain from email
 def extract_domain(email):
     return email.split('@')[1]
 
-# Connect to SQLite database (or create it if it doesn't exist)
+# Connect to SQLite database / Make is it is not existant
 conn = sqlite3.connect('email_spam.db')
 cursor = conn.cursor()
 
-# Create tables if they don't exist
+# Create if not existant
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS email_address (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,52 +34,51 @@ CREATE TABLE IF NOT EXISTS spam_confidence (
 )
 ''')
 
+# Commit the table creation
 conn.commit()
 
-# Read the mbox file
+# Read the file
 with open('mbox-short.txt', 'r') as file:
     lines = file.readlines()
 
-# Regular expressions for matching email addresses and spam confidence levels
+# Extract data
 email_pattern = re.compile(r'^From (\S+@\S+)')
 spam_confidence_pattern = re.compile(r'^X-DSPAM-Confidence: ([0-9.]+)')
 
+# Temporary variables to hold extracted data
 email = None
 weekday = None
 spam_confidence = None
 
+# Process each line in the file
 for line in lines:
-    # Match email addresses
+    # Check if the line contains an email address
     email_match = email_pattern.match(line)
     if email_match:
         email = email_match.group(1)
-        
-        # Extract weekday if available
+        # Extract weekday from the line
         parts = line.split()
         if len(parts) >= 3:
             weekday = parts[2]
-        
         # Insert email and weekday into the email_address table if not exists
         cursor.execute('INSERT OR IGNORE INTO email_address (email, weekday) VALUES (?, ?)', (email, weekday))
         cursor.execute('SELECT id FROM email_address WHERE email = ?', (email,))
         email_id = cursor.fetchone()[0]
-        
         # Extract domain and insert into the domain_name table if not exists
         domain = extract_domain(email)
         cursor.execute('INSERT OR IGNORE INTO domain_name (domain) VALUES (?)', (domain,))
-    
-    # Match spam confidence levels
+
+    # Check if the line contains SPAM confidence level
     spam_confidence_match = spam_confidence_pattern.match(line)
     if spam_confidence_match and email:
         spam_confidence = float(spam_confidence_match.group(1))
-        
         # Insert spam confidence into the spam_confidence table
         cursor.execute('INSERT INTO spam_confidence (email_id, confidence_level) VALUES (?, ?)', (email_id, spam_confidence))
-        email = None  # Reset email to avoid duplicate entries in the next iteration
 
+# Commit the changes
 conn.commit()
 
-# Fetch and display unique domains
+# Get The domains from the table
 cursor.execute('SELECT DISTINCT domain FROM domain_name')
 unique_domains = cursor.fetchall()
 
@@ -87,10 +86,9 @@ print("List of unique domains:")
 for domain in unique_domains:
     print(domain[0])
 
-# Get user input for domain selection
 chosen_domain = input("\nEnter a domain name from the list above: ").strip()
 
-# Query the database for emails from the chosen domain on Fri and Sat, ordered by spam confidence level
+# Query of domain received on Fridays and Saturdays
 query = '''
 SELECT DISTINCT email_address.weekday, domain_name.domain, email_address.email, spam_confidence.confidence_level
 FROM email_address
@@ -104,10 +102,21 @@ ORDER BY spam_confidence.confidence_level
 cursor.execute(query, (chosen_domain,))
 results = cursor.fetchall()
 
-# Display the results
-print("\nResults for emails from domain '{}':".format(chosen_domain))
-for row in results:
-    print("Weekday: {}, Domain: {}, Email: {}, SPAM Confidence: {}".format(row[0], row[1], row[2], row[3]))
+# Keeps track spam confidences
+displayed_confidences = set()
 
-# Close the database connection
+# Some Wodu that makes Rows - THank you StackOverflow
+print("\nEmails received from domain '{}' on Fridays and Saturdays:".format(chosen_domain))
+print("{:<10} {:<20} {:<30} {:<10}".format('Weekday', 'Domain', 'Email', 'Spam Confidence'))
+print('-' * 70)
+
+for row in results:
+    if row[3] not in displayed_confidences:
+        print("{:<10} {:<20} {:<30} {:<10}".format(row[0], row[1], row[2], row[3]))
+        displayed_confidences.add(row[3])
+        # Count Unique
+        if len(displayed_confidences) >= 10:
+            break
+
+# FINALY END
 conn.close()
